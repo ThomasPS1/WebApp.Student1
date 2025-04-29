@@ -14,7 +14,7 @@ namespace WebApp.Student1.Controllers
         }
         public IActionResult Index()
         {
-            var enrollmentList = _context.Enrollment.Include(x=>x.Students).Include(x=>x.Courses).ToList();
+            var enrollmentList = _context.Enrollment.Include(x=>x.Students).Include(x=>x.Course).ToList();
 
             return View(enrollmentList);
         }

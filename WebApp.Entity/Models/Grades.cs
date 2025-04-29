@@ -12,6 +12,9 @@ namespace WebApp.Student1.Models
             public string? Grade { get; set; }
             public int EnrollmentId { get; set; }
             //1 enrollment
+
             public Enrollment? Enrollment { get; set; }
+
+           
         }
     }

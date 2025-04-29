@@ -9,7 +9,7 @@ namespace WebApp.Student1.Models
     {
         [Key]
         public int EnrollmentId { get; set; }
-        public DateOnly EnrollmentDate { get; set; }
+        public DateTime EnrollmentDate { get; set; }
         public int StudentId { get; set; }
         public int CourseId { get; set; }
         //one student
@@ -17,7 +17,7 @@ namespace WebApp.Student1.Models
         //one grade
         public Grades? Grades { get; set; }
         //one course
-        public Courses? Courses { get; set; }
+        public Courses? Course { get; set; }
 
     }
 }

@@ -19,7 +19,7 @@ namespace WebApp.Student1.Data
             .HasForeignKey(s => s.StudentId);
 
             modelBuilder.Entity<Enrollment>()
-            .HasOne<Courses>(s => s.Courses)
+            .HasOne<Courses>(s => s.Course)
             .WithMany(g => g.Enrollment)
             .HasForeignKey(s => s.CourseId);
 
@@ -27,6 +27,10 @@ namespace WebApp.Student1.Data
             .HasOne(c => c.Instructors)
             .WithMany(i => i.Courses)
             .HasForeignKey(c => c.InstructorId);
+
+           
+
+
 
 
         }
