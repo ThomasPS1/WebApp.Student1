@@ -1,0 +1,29 @@
+﻿@model IEnumerable<WebApp.Student1.Models.Enrollment>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>EnrollmentID</th>
+            <th>StudentID</th>
+            <th>StudentName</th>
+            <th>CourseName</th>
+            <th>EnrollmentDate</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.EnrollmentId</td>
+                <td>@item.Students.StudentId</td>
+                <td>@item.Students.StudentName</td>
+                <td>@item.Courses.CourseName</td>
+                <td>@item.EnrollmentDate</td>
+            </tr>
+        }
+    </tbody>
+</table>
