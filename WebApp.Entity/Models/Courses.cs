@@ -8,7 +8,7 @@ namespace WebApp.Student1.Models
     public class Courses
     {
         [Key]
-        public int CourseID { get; set; }
+        public int CourseId { get; set; }
         public string? CourseName { get; set; }
         public int InstructorId { get; set; }
         //one instructor
