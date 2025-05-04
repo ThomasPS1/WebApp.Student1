@@ -1,0 +1,13 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["title"] = "Admin Dashboard";
+}
+
+
+<h2>Admin Dashboard</h2>
+<a asp-controller="Account" asp-action="ListUsers">User Management</a>
+<a asp-controller="Account" asp-action="AddRemoveRoles" asp-route-id="@ViewBag.Id">Role Management</a>
+<a asp-controller="Course" asp-action="Index">Course Management</a>
+<a asp-controller="Instructor" asp-action="Index">Instructor Management</a>

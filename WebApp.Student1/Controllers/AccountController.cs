@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,8 @@ namespace WebApp.Student1.Controllers
             _context = context;
         }
 
+        [Authorize(Roles = "admin")]
+
         [HttpGet]
         public IActionResult ListUsers()
         {
@@ -36,6 +39,7 @@ namespace WebApp.Student1.Controllers
         {
             return View();
         }
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
@@ -62,6 +66,7 @@ namespace WebApp.Student1.Controllers
 
                     return RedirectToAction(nameof(Login));
                 }
+
                 foreach (var err in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, err.Description);
@@ -69,6 +74,7 @@ namespace WebApp.Student1.Controllers
             }
             return View();
         }
+        
         [HttpGet]
         public IActionResult Login()
         {
@@ -84,7 +90,19 @@ namespace WebApp.Student1.Controllers
 
                 if (result.Succeeded)
                 {
-                    return RedirectToAction("Index", "Student");
+                    var user = await _userManager.FindByNameAsync(model.UserName);
+
+                    if (await _userManager.IsInRoleAsync(user, "admin"))
+                    {
+                        return RedirectToAction("AdminIndex", "Account"); 
+                    }
+                    else if (await _userManager.IsInRoleAsync(user, "student"))
+                    {
+                        return RedirectToAction("Index", "Student");
+                    }
+
+                   
+                    return RedirectToAction("AccessDenied");
                 }
 
                 ModelState.AddModelError(string.Empty, "Invalid Credentials");
@@ -92,17 +110,21 @@ namespace WebApp.Student1.Controllers
             return View();
         }
 
+        [Authorize]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("Login");
         }
 
+        [Authorize]
         public async Task<IActionResult> AccessDenied(string ReturnUrl)
         {
             return View();
 
         }
+
+        [Authorize(Roles = "admin")]
 
         [HttpGet]
         public async Task<IActionResult> AddRemoveRoles(string id)
@@ -132,6 +154,8 @@ namespace WebApp.Student1.Controllers
 
             return View(model);
         }
+
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<IActionResult> AddRemoveRoles(List<UserRoleViewModel> model, string id)
         {
@@ -157,6 +181,14 @@ namespace WebApp.Student1.Controllers
             }
 
             return RedirectToAction(nameof(ListUsers));
+        }
+
+        public async Task<IActionResult> AdminIndex()
+
+        {
+            var user = await _userManager.GetUserAsync(User);
+            ViewBag.Id = user.Id;
+            return View();
         }
 
     }

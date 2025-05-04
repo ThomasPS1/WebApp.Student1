@@ -53,7 +53,6 @@ namespace WebApp.Student1.Controllers
                 return RedirectToAction("Index", "Student");
             }
 
-            //ViewBag.CourseId = new SelectList(_context.Courses, "CourseId", "CourseName", enrollment.CourseId);
             return View(enrollment);
         }
 

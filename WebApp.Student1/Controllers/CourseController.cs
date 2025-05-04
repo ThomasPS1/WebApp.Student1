@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Student1.Data;
 using WebApp.Student1.Models;
@@ -29,6 +30,8 @@ namespace WebApp.Student1.Controllers
 
         [Authorize(Roles = "admin")]
 
+        [Authorize(Roles = "admin")]
+
         [HttpPost]
         public IActionResult Create(Courses course)
         {
@@ -38,6 +41,7 @@ namespace WebApp.Student1.Controllers
         }
 
         [Authorize(Roles = "admin")]
+
 
         [HttpGet]
         public IActionResult Create()
@@ -49,7 +53,10 @@ namespace WebApp.Student1.Controllers
         [HttpGet]
         public IActionResult Edit(int id)
         {
-            var course = _context.Courses.Find(id);
+            var course = _context.Courses.Include(x => x.Instructors).FirstOrDefault(x => x.CourseId == id);
+            ViewBag.InstructorId = new SelectList(_context.Instructors, "InstructorId", "InstructorName");
+
+
             return View(course);
         }
         [Authorize(Roles = "admin")]

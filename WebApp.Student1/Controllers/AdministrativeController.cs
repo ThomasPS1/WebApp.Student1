@@ -1,10 +1,13 @@
 ﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Entity.ViewModels;
 
 namespace WebApp.Student1.Controllers
 {
+    [Authorize(Roles = "admin")]
+
     public class AdministrativeController : Controller
     {
         private readonly RoleManager<IdentityRole> _roleManager;
