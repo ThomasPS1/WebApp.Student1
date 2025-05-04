@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Student1.Data;
 using WebApp.Student1.Models;
 
 namespace WebApp.Student1.Controllers
 {
+
     public class CourseController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -12,16 +14,21 @@ namespace WebApp.Student1.Controllers
         {
             _context = context;
         }
+        [Authorize]
         public IActionResult Index()
         {
             var courseLst = _context.Courses.Include(x=>x.Instructors).ToList();
             return View(courseLst);
         }
+        [Authorize]
         public IActionResult Details(int id)
         {
             var course = _context.Courses.Include(x => x.Instructors).FirstOrDefault(x => x.CourseId == id);
             return View(course);
         }
+
+        [Authorize(Roles = "admin")]
+
         [HttpPost]
         public IActionResult Create(Courses course)
         {
@@ -30,11 +37,14 @@ namespace WebApp.Student1.Controllers
             return RedirectToAction("Index");
         }
 
+        [Authorize(Roles = "admin")]
+
         [HttpGet]
         public IActionResult Create()
         {
             return View();
         }
+        [Authorize(Roles = "admin")]
 
         [HttpGet]
         public IActionResult Edit(int id)
@@ -42,6 +52,8 @@ namespace WebApp.Student1.Controllers
             var course = _context.Courses.Find(id);
             return View(course);
         }
+        [Authorize(Roles = "admin")]
+
         [HttpPost]
         public IActionResult Edit(Courses course)
         {
@@ -52,7 +64,9 @@ namespace WebApp.Student1.Controllers
             }
             return RedirectToAction("Index");
         }
-        
+        [Authorize(Roles = "admin")]
+
+
         public IActionResult Delete(int id)
         {
             var course = _context.Courses.Find(id);

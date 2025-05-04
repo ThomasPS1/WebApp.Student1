@@ -1,7 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using WebApp.Entity.ViewModels;
+using WebApp.Student1.Data;
 using WebApp.Student1.Models;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -12,11 +14,14 @@ namespace WebApp.Student1.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, RoleManager<IdentityRole> roleManager)
+        private readonly ApplicationDbContext _context;
+
+        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, RoleManager<IdentityRole> roleManager,ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
+            _context = context;
         }
 
         [HttpGet]
@@ -44,9 +49,20 @@ namespace WebApp.Student1.Controllers
                 IdentityResult result = await _userManager.CreateAsync(user,model.Password);
                 if (result.Succeeded)
                 {
-                    return RedirectToAction(nameof(ListUsers));
+                    Students student = new()
+                    {
+                        StudentName = model.UserName,
+                        
+                        IdentityUserId = user.Id
+                    };
+                    _context.Students.Add(student);
+                    await _context.SaveChangesAsync();
+                    await _userManager.AddToRoleAsync(user, "student");
+
+
+                    return RedirectToAction(nameof(Login));
                 }
-                foreach(var err in result.Errors)
+                foreach (var err in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, err.Description);
                 }
@@ -68,12 +84,79 @@ namespace WebApp.Student1.Controllers
 
                 if (result.Succeeded)
                 {
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Student");
                 }
 
                 ModelState.AddModelError(string.Empty, "Invalid Credentials");
             }
             return View();
+        }
+
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Login");
+        }
+
+        public async Task<IActionResult> AccessDenied(string ReturnUrl)
+        {
+            return View();
+
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> AddRemoveRoles(string id)
+        {
+            List<UserRoleViewModel> model = new();
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            ViewBag.UserName = user.UserName;
+            ViewBag.Id = user.Id;
+
+            foreach (var role in _roleManager.Roles.ToList())
+            {
+                UserRoleViewModel roleViewModel = new()
+                {
+                    RoleId = role.Id,
+                    RoleName = role.Name,
+                    IsSelected = await _userManager.IsInRoleAsync(user, role.Name),
+                };
+
+                model.Add(roleViewModel);
+            }
+
+            return View(model);
+        }
+        [HttpPost]
+        public async Task<IActionResult> AddRemoveRoles(List<UserRoleViewModel> model, string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            ViewBag.UserName = user.UserName;
+            ViewBag.Id = user.Id;
+
+            foreach (var role in model)
+            {
+                if (role.IsSelected && !await _userManager.IsInRoleAsync(user, role.RoleName))
+                {
+                    var result = await _userManager.AddToRoleAsync(user, role.RoleName);
+                }
+                else if (!role.IsSelected && await _userManager.IsInRoleAsync(user, role.RoleName))
+                {
+                    var result = await _userManager.RemoveFromRoleAsync(user, role.RoleName);
+                }
+            }
+
+            return RedirectToAction(nameof(ListUsers));
         }
 
     }
